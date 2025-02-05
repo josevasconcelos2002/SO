@@ -12,12 +12,11 @@ int main(int argc, char** argv){
         printf("argv[%d] = %s \n", i, argv[i]);
     }
 
-
+    char buffer[SIZE] = {0};
+    ssize_t bytesRead = 0;
 
     if(argc == 1){
         // funcionalidade simples
-        char buffer[SIZE] = {0};
-        int bytesRead = 0;
         while((bytesRead = read(0, buffer, SIZE)) > 0){
             write(1,buffer,bytesRead);
         }
@@ -25,12 +24,11 @@ int main(int argc, char** argv){
     else if(argc == 2){
         // funcionalidade avancada
         int fd = open(argv[1], O_RDONLY);
-        char buffer[SIZE] = {0};
-        int bytesRead = 0;
         while((bytesRead = read(fd, buffer, SIZE)) > 0){
             write(1,buffer,bytesRead);
         }
         printf("\n");
+        close(fd);
     }
     return 0;
 }
