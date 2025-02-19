@@ -1,4 +1,5 @@
 #include "person.h"
+#include <string.h>
 
 // TO DO
 
