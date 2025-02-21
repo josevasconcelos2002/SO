@@ -39,7 +39,7 @@ void list_N_persons(int N){
 }
 
 void update_person_age(char *name, int age){
-    int fd = open(FILE_NAME, O_RDWR); // Abrir para leitura e escrita
+    int fd = open(FILE_NAME, O_RDWR);
     if (fd == -1) {
         perror("Erro ao abrir o ficheiro");
         return;
@@ -53,7 +53,7 @@ void update_person_age(char *name, int age){
         offset = lseek(fd, 0, SEEK_CUR) - sizeof(p); // Obter o offset do registro atual
 
         if (strcmp(p.name, name) == 0) {
-            p.age = age; // Atualizar a idade
+            p.age = age;
             
             lseek(fd, offset, SEEK_SET); // Voltar para a posição do registro
             ssize_t wrote_bytes = write(fd, &p, sizeof(p));
@@ -68,6 +68,42 @@ void update_person_age(char *name, int age){
 
     close(fd);
 }
+
+
+
+void update_regist_age(int regist_nr, int age) {
+    int fd = open(FILE_NAME, O_RDWR);
+    if (fd == -1) {
+        perror("Erro ao abrir o ficheiro");
+        return;
+    }
+
+    struct person p;
+    int current_regist = 0; // Contador de registros
+
+    // Ler registros um a um até encontrar o número desejado
+    while (read(fd, &p, sizeof(p)) > 0) {
+        if (current_regist == regist_nr) { // Encontrou o registro
+            p.age = age;
+
+            // Voltar para a posição do registro para sobrescrever
+            lseek(fd, -sizeof(p), SEEK_CUR);
+            if (write(fd, &p, sizeof(p)) == -1) {
+                perror("Erro ao escrever o registro atualizado");
+            } else {
+                printf("Registro %d atualizado: Nome: %s, Nova Idade: %d\n", regist_nr, p.name, p.age);
+            }
+            close(fd);
+            return;
+        }
+        current_regist++; // Incrementa a cada registro lido
+    }
+
+    // Se chegou aqui, o registro não foi encontrado
+    printf("Erro: Registro %d não encontrado\n", regist_nr);
+    close(fd);
+}
+
 
 
 
@@ -121,7 +157,14 @@ int main(int argc, char* argv[]){
 
     if ( strcmp(argv[1],"-o") == 0 )
     {
-        // TO DO
+        if(argc < 4){
+            printf("Usage:\n");
+            printf("Update some person age: ./pessoas -o [regist_nr] [age]\n");
+            return 1;
+        }
+        int regist_nr = atoi(argv[2]);
+        int age = atoi(argv[3]);
+        update_regist_age(regist_nr, age);
     }
 
     return 0;
