@@ -1,21 +1,44 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include "mysystem.h"
 
-void controller(int N, char** commands) {
-	// TO DO
+
+int controller(int N, char** commands) {
+    int n_vezes[N];
+
+    for (int j = 0; j < N; j++) {
+        n_vezes[j] = 0;
+    }
+
+    for (int i = 0; i < N; i++) {
+        int r = -1;
+
+        while (r != 0) {
+            r = mysystem(commands[i]);
+            n_vezes[i]++;
+        }
+    }
+
+    for (int i = 0; i < N; i++) {
+        printf("%s %d\n", commands[i], n_vezes[i]);
+    }
+
+    return 0;
 }
 
 int main(int argc, char* argv[]) {
+    char* commands[argc - 1];
 
-    char *commands[argc-1];
-    int N = 0;
-	for(int i=1; i < argc; i++){
-		commands[N] = strdup(argv[i]);
-		printf("command[%d] = %s\n", N, commands[N]);
-        N++;
-	}
+    for (int i = 1; i < argc; i++) {
+        commands[i - 1] = strdup(argv[i]);
+    }
 
-    controller(N, commands);
+    controller(argc - 1, commands);
 
-	return 0;
+    for (int i = 0; i < argc - 1; i++) {
+        free(commands[i]);
+    }
+
+    return 0;
 }

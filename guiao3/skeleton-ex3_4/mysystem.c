@@ -11,7 +11,6 @@ int mysystem(const char* command) {
     char* args[N];
     char cmd_copy[256];
 
-    // Faz uma cópia da string original para não modificá-la
     strncpy(cmd_copy, command, sizeof(cmd_copy) - 1);
     cmd_copy[sizeof(cmd_copy) - 1] = '\0';
 
@@ -23,14 +22,7 @@ int mysystem(const char* command) {
         i++;
         token = strtok(NULL, " ");
     }
-    args[i] = NULL;  // Finaliza a lista de argumentos
-
-    // DEBUG: Mostrar os argumentos extraídos
-    printf("Executando: ");
-    for (int j = 0; args[j] != NULL; j++) {
-        printf("%s ", args[j]);
-    }
-    printf("\n");
+    args[i] = NULL;
 
     pid_t pid = fork();
     if (pid < 0) {
@@ -38,13 +30,12 @@ int mysystem(const char* command) {
         return -1;
     }
 
-    if (pid == 0) {  // Processo filho
+    if (pid == 0) {
         execvp(args[0], args);
-        perror("execvp falhou");  // Só executa se execvp falhar
+        perror("execvp falhou");
         _exit(127);
     }
 
-    // Processo pai
     int status;
     waitpid(pid, &status, 0);
 
