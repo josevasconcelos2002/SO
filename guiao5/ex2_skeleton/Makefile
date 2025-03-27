@@ -14,4 +14,4 @@ client.o: client.c defs.h
 vector.o: vector.c vector.h
 
 clean:
-	rm -f -r ../fifos/* server client *.o
+	rm -f -r ../fifos/* server client *.o logs.txt
