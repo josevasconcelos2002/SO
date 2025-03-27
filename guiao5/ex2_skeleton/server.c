@@ -13,30 +13,41 @@ int main (int argc, char * argv[]) {
     mkfifo(RESPONSE_FIFO, 0666);
     mkfifo(REQUEST_FIFO, 0666);
 
-    int response_fifo = open(RESPONSE_FIFO, O_WRONLY);
     int request_fifo = open(REQUEST_FIFO, O_RDONLY | O_NONBLOCK);
 
     int n;
     Msg mensagem;
 
-    while ((n = read(request_fifo, &mensagem, sizeof(Msg))>0)) {
+    while (1) {
 
-            printf("\nMensagem recebida:\n");
-            printf("Needle: %d\n", mensagem.needle);
-            printf("PID: %d\n", mensagem.pid);
-            printf("Occurrences: %d\n", mensagem.occurrences);
+            n = read(request_fifo, &mensagem, sizeof(Msg));
 
+            if(n>0){
+
+                printf("\nMensagem recebida:\n");
+                printf("Needle: %d\n", mensagem.needle);
+                printf("PID: %d\n", mensagem.pid);
+                printf("Occurrences: %d\n", mensagem.occurrences);
+
+                
+                mensagem.occurrences = count_needle(mensagem.needle);
+
+                char *response_fifo_name = malloc(128);
+                sprintf(response_fifo_name, "../fifos/response_fifo_%d", mensagem.pid);
+                
+                int response_fifo = open(response_fifo_name, O_WRONLY);
+                
+                write(response_fifo, &mensagem, sizeof(Msg));
+                printf("\nResposta enviada:\n");
+                printf("Needle: %d\n", mensagem.needle);
+                printf("Occurrences: %d\n", mensagem.occurrences);
+                
+                free(response_fifo_name);
+                close(response_fifo);
+            }
             
-            mensagem.occurrences = count_needle(mensagem.needle);
-
-            
-            write(response_fifo, &mensagem, sizeof(Msg));
-            printf("\nResposta enviada:\n");
-            printf("Needle: %d\n", mensagem.needle);
-            printf("Occurrences: %d\n", mensagem.occurrences);
     } 
 
-    close(response_fifo);
     close(request_fifo);
     unlink(RESPONSE_FIFO);
     unlink(REQUEST_FIFO);

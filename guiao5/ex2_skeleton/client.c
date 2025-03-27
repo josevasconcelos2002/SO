@@ -15,7 +15,10 @@ int main (int argc, char * argv[]) {
 		
     } else if (argc == 2) {
         int n = atoi(argv[1]);
-        printf("N: %d\n", n);
+
+        char *response_fifo_name = malloc(128);
+        sprintf(response_fifo_name, "../fifos/response_fifo_%d", getpid());
+        mkfifo(response_fifo_name, 0666);
 
         Msg mensagem;
         mensagem.needle = n;
@@ -36,7 +39,7 @@ int main (int argc, char * argv[]) {
 
         close(request_fifo);
 
-        int response_fifo = open(RESPONSE_FIFO, O_RDONLY);
+        int response_fifo = open(response_fifo_name, O_RDONLY);
 
         Msg msg_recieved;
         int n_r = read(response_fifo, &msg_recieved, sizeof(Msg));
@@ -49,6 +52,7 @@ int main (int argc, char * argv[]) {
             printf("Erro ao ler resposta do servidor ou resposta vazia.\n");
         }
 
+        free(response_fifo_name);
         close(response_fifo);
     }
 
